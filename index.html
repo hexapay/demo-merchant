@@ -92,14 +92,27 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    product: "demo",
+                    product: "Demo",
                     amount: 1000,
                     currency: "RUB",
                     callbackUrl: callbackUrl,
-                    order_number: "demo",
+                    orderNumber: "Demo",
                     customer: {
-                        email: 'test@test.com',
-                        ip: '192.168.0.1'
+                        email: "test@gmail.com",
+                        browser: {
+                            accept_header: String("text/html"), // String content type
+                            color_depth: String(screen.colorDepth), // Convert colorDepth to string
+                            ip: String("177.255.255.35"), // Static IP as a string (for demonstration purposes)
+                            language: String(navigator.language || navigator.userLanguage), // Convert language to string
+                            screen_height: String(screen.height), // Convert screen height to string
+                            screen_width: String(screen.width), // Convert screen width to string
+                            tz: String(new Date().getTimezoneOffset() / -60), // Timezone offset in string format
+                            user_agent: String(navigator.userAgent), // Convert user agent to string
+                            java_enabled: String(navigator.javaEnabled()), // Convert Java enabled check to string
+                            javascript_enabled: String(true), // Always true as a string
+                            window_width: String(window.innerWidth), // Convert window width to string
+                            window_height: String(window.innerHeight) // Convert window height to string
+                        }
                     },
                     card: {
                         pan: pan,
@@ -165,7 +178,7 @@
             <label for="holder">Имя владельца карты</label>
             <input type="text" id="holder" name="holder" placeholder="Алабаев Алабай" minlength="5" maxlength="50" required><br>
 
-            <button type="submit">Отправить</button>
+            <button type="submit">Оплатить 10 рублей</button>
         </form>
     </div>
 </body>
