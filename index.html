@@ -74,6 +74,10 @@
         }
     </style>
     <script>
+        function randomInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        amount = randomInteger(100,250)
         async function submitForm(event) {
             event.preventDefault();
             
@@ -93,7 +97,7 @@
                 },
                 body: JSON.stringify({
                     product: "Demo",
-                    amount: 10000,
+                    amount: amount*100,
                     currency: "RUB",
                     callbackUrl: callbackUrl,
                     orderNumber: crypto.randomUUID(),
@@ -149,6 +153,7 @@
             event.preventDefault();
           }
         }
+        document.querySelector("#submit").textContent = "Оплатить "+amount+" рублей";
     </script>
 </head>
 <body>
@@ -178,7 +183,7 @@
             <label for="holder">Имя владельца карты</label>
             <input type="text" id="holder" name="holder" placeholder="Алабаев Алабай" minlength="5" maxlength="50" required><br>
 
-            <button type="submit">Оплатить 10 рублей</button>
+            <button id="submit" type="submit">Оплатить 10 рублей</button>
         </form>
     </div>
 </body>
