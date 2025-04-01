@@ -73,6 +73,20 @@
             margin-top: 10px;
         }
     </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Демо мерчант</h1>
+        <form onsubmit="submitForm(event)">
+            <label for="auth_token">Токен авторизации</label>
+            <input type="text" id="auth_token" name="auth_token" placeholder="Токен" required><br>
+
+            <label for="callback_url">URL обратного вызова</label>
+            <input type="text" id="callback_url" name="callback_url" placeholder="URL обратного вызова" required><br>
+
+            <button id="submit" type="submit">Оплатить 10 рублей</button>
+        </form>
+    </div>
     <script>
         function randomInteger(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -109,19 +123,5 @@
         }
         document.querySelector("#submit").textContent = "Оплатить "+amount+" рублей";
     </script>
-</head>
-<body>
-    <div class="form-container">
-        <h1>Демо мерчант</h1>
-        <form onsubmit="submitForm(event)">
-            <label for="auth_token">Токен авторизации</label>
-            <input type="text" id="auth_token" name="auth_token" placeholder="Токен" required><br>
-
-            <label for="callback_url">URL обратного вызова</label>
-            <input type="text" id="callback_url" name="callback_url" placeholder="URL обратного вызова" required><br>
-
-            <button id="submit" type="submit">Оплатить 10 рублей</button>
-        </form>
-    </div>
 </body>
 </html>
