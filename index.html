@@ -32,7 +32,9 @@
         }
         input[type="text"], 
         input[type="email"],
-        input[type="password"] {
+        input[type="password"],
+        input[type="number"],
+        select {
             width: 92.5%;
             padding: 10px;
             margin: 5px 0 15px;
@@ -42,7 +44,9 @@
         }
         input[type="text"]:focus, 
         input[type="email"]:focus,
-        input[type="password"]:focus {
+        input[type="password"]:focus,
+        input[type="number"]:focus,
+        select:focus {
             border-color: #007bff;
             outline: none;
         }
@@ -72,6 +76,16 @@
             text-align: center;
             margin-top: 10px;
         }
+        .currency-amount-group {
+            display: flex;
+            gap: 10px;
+        }
+        .currency-amount-group select {
+            width: 30%;
+        }
+        .currency-amount-group input {
+            width: 60%;
+        }
     </style>
     
 </head>
@@ -84,6 +98,16 @@
 
             <label for="callback_url">URL обратного вызова</label>
             <input type="text" id="callback_url" name="callback_url" placeholder="URL обратного вызова" required><br>
+
+            <label for="currency">Валюта</label>
+            <div class="currency-amount-group">
+                <select id="currency" name="currency" required onchange="updateAmountValidation()">
+                    <option value="RUB">RUB</option>
+                    <option value="CNY">CNY</option>
+                    <option value="EUR">EUR</option>
+                </select>
+                <input type="number" id="amount" name="amount" placeholder="Сумма" min="100" step="1" required>
+            </div>
 
             <label for="pan">Номер карты</label>
             <input type="text" id="pan" name="pan" placeholder="4539495925872677" minlength="16" maxlength="19" pattern="^\d{16,19}$" required onkeypress="validateNumbers(event)"><br>
@@ -102,16 +126,63 @@
             <label for="holder">Имя владельца карты</label>
             <input type="text" id="holder" name="holder" placeholder="Алабаев Алабай" minlength="5" maxlength="50" required><br>
 
-            <button id="submit" type="submit">Оплатить 10 рублей</button>
+            <button id="submit" type="submit">Оплатить</button>
         </form>
     </div>
     <script>
-        function randomInteger(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+        function updateAmountValidation() {
+            const currency = document.getElementById('currency').value;
+            const amountInput = document.getElementById('amount');
+            
+            switch(currency) {
+                case 'RUB':
+                    amountInput.min = 100;
+                    amountInput.step = 1;
+
+                    amountInput.placeholder = "Мин. 100";
+                    break;
+                case 'CNY':
+                    amountInput.min = 10;
+                    amountInput.step = 1;
+                    amountInput.placeholder = "Мин. 10";
+                    break;
+                case 'EUR':
+                    amountInput.min = 2;
+                    amountInput.step = 0.01;
+                    amountInput.placeholder = "Мин. 2";
+                    break;
+            }
+            amountInput.value = null;
         }
-        amount = randomInteger(100,250)
+     
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAmountValidation();
+            document.getElementById('amount').addEventListener('input', updateButtonText);
+        });
+
         async function submitForm(event) {
             event.preventDefault();
+
+            const currency = document.getElementById('currency').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            let isValidAmount = true;
+            switch(currency) {
+                case 'RUB':
+                    isValidAmount = amount >= 100;
+                    break;
+                case 'CNY':
+                    isValidAmount = amount >= 10;
+                    break;
+                case 'EUR':
+                    isValidAmount = amount >= 2;
+                    break;
+            }
+            
+            if (!isValidAmount) {
+                alert(`Неверная сумма для валюты ${currency}. Минимальная сумма: ${currency === 'RUB' ? '100' : currency === 'CNY' ? '10' : '2'}`);
+                return;
+            }
             
             const formData = new FormData(event.target);
             const authToken = formData.get('auth_token');
@@ -120,6 +191,8 @@
             const expires = formData.get('expires');
             const holder = formData.get('holder');
             const cvv = formData.get('cvv');
+            const selectedCurrency = formData.get('currency');
+            const amountValue = formData.get('amount');
 
             const response = await fetch("https://business.cixsdpxj.info/api/v1/payments", {
                 method: 'POST',
@@ -129,25 +202,25 @@
                 },
                 body: JSON.stringify({
                     product: "Demo",
-                    amount: amount*100,
-                    currency: "RUB",
+                    amount: Math.round(amountValue * 100), // Умножаем на 100 для центов/копеек
+                    currency: selectedCurrency,
                     callbackUrl: callbackUrl,
                     orderNumber: crypto.randomUUID(),
                     customer: {
                         email: "test@gmail.com",
                         browser: {
-                            accept_header: String("text/html"), // String content type
-                            color_depth: String(screen.colorDepth), // Convert colorDepth to string
-                            ip: String("177.255.255.35"), // Static IP as a string (for demonstration purposes)
-                            language: String(navigator.language || navigator.userLanguage), // Convert language to string
-                            screen_height: String(screen.height), // Convert screen height to string
-                            screen_width: String(screen.width), // Convert screen width to string
-                            tz: String(new Date().getTimezoneOffset() / -60), // Timezone offset in string format
-                            user_agent: String(navigator.userAgent), // Convert user agent to string
-                            java_enabled: String(navigator.javaEnabled()), // Convert Java enabled check to string
-                            javascript_enabled: String(true), // Always true as a string
-                            window_width: String(window.innerWidth), // Convert window width to string
-                            window_height: String(window.innerHeight) // Convert window height to string
+                            accept_header: String("text/html"),
+                            color_depth: String(screen.colorDepth),
+                            ip: String("177.255.255.35"),
+                            language: String(navigator.language || navigator.userLanguage),
+                            screen_height: String(screen.height),
+                            screen_width: String(screen.width),
+                            tz: String(new Date().getTimezoneOffset() / -60),
+                            user_agent: String(navigator.userAgent),
+                            java_enabled: String(navigator.javaEnabled()),
+                            javascript_enabled: String(true),
+                            window_width: String(window.innerWidth),
+                            window_height: String(window.innerHeight)
                         }
                     },
                     card: {
@@ -156,7 +229,6 @@
                         holder: holder,
                         cvv: cvv
                     }
-
                 })
             });
 
@@ -167,6 +239,7 @@
                 alert('Произошла ошибка при обработке запроса.');
             }
         }
+        
         function validateExpires(event) {
           const input = event.target;
           const isValid = /^[0-9]*$/.test(event.key);
@@ -179,13 +252,13 @@
             if (input.value.length === 3 && input.value.charAt(2) === '/')
               input.value = input.value.replace('/', '');
         }
+        
         function validateNumbers(event) {
           const isValid = /^[0-9]*$/.test(event.key);
           if (!isValid) {
             event.preventDefault();
           }
         }
-        document.querySelector("#submit").textContent = "Оплатить "+amount+" рублей";
     </script>
 </body>
 </html>
