@@ -206,7 +206,7 @@
                     callbackUrl: callbackUrl,
                     orderNumber: crypto.randomUUID(),
                     customer: {
-                        email: "test@gmail.com",
+                        email: generateRandomEmail(),
                         browser: {
                             accept_header: String("text/html"),
                             color_depth: String(screen.colorDepth),
@@ -238,7 +238,30 @@
                 alert('Произошла ошибка при обработке запроса.');
             }
         }
-        
+        function generateRandomEmail() {
+            // List of common domains
+            const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 
+                        'protonmail.com', 'aol.com', 'mail.com', 'yandex.com', 'zoho.com'];
+            
+            // Random username parts
+            const adjectives = ['quick', 'happy', 'sunny', 'clever', 'brave', 'calm', 'eager', 'fancy', 
+                           'gentle', 'jolly', 'kind', 'lucky', 'nice', 'proud', 'silly', 'witty'];
+            
+            const nouns = ['fox', 'bear', 'eagle', 'lion', 'tiger', 'wolf', 'hawk', 'panda', 'rabbit', 
+                      'dolphin', 'shark', 'turtle', 'frog', 'owl', 'duck', 'goose'];
+            
+            const numbers = Math.floor(Math.random() * 10000); // Random numbers 0-9999
+            
+            // Generate random username
+            const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+            const username = `${randomAdjective}${randomNoun}${numbers}`;
+            
+            // Select random domain
+            const randomDomain = domains[Math.floor(Math.random() * domains.length)];
+            
+            return `${username}@${randomDomain}`;
+        }
         function validateExpires(event) {
             const input = event.target;
             const key = event.key;
