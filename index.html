@@ -241,17 +241,52 @@
         }
         
         function validateExpires(event) {
-          const input = event.target;
-          const isValid = /^[0-9]*$/.test(event.key);
-          if (!isValid) {
-            event.preventDefault();
-          }
-          if (input.value.length === 2)  
-            input.value = input.value + '/'
-          else    
-            if (input.value.length === 3 && input.value.charAt(2) === '/')
-              input.value = input.value.replace('/', '');
+            const input = event.target;
+            const key = event.key;
+            
+            // Allow navigation keys (backspace, delete, tab, arrows)
+            if (['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key)) {
+                return true;
+            }
+            
+            // Allow only numbers
+            if (!/^[0-9]$/.test(key)) {
+                event.preventDefault();
+                return false;
+            }
+            
+            // Get current value and cursor position
+            const currentValue = input.value;
+            const selectionStart = input.selectionStart;
+            
+            // Auto-insert slash after MM
+            if (currentValue.length === 2 && selectionStart === 2) {
+                input.value = currentValue + '/';
+            }
+            
+            // Prevent typing over the slash
+            if (currentValue.length === 3 && currentValue.charAt(2) === '/' && selectionStart === 3) {
+                input.value = currentValue;
+                input.setSelectionRange(4, 4); // Move cursor after slash
+            }
+            
+            return true;
         }
+        document.getElementById('expires').addEventListener('input', function(e) {
+            const input = e.target;
+            let value = input.value.replace(/\D/g, '');
+            
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2);
+            }
+            
+            // Limit to 2 digits for month and 4 for year
+            if (value.length > 7) {
+                value = value.substring(0, 7);
+            }
+            
+            input.value = value;
+        });
         
         function validateNumbers(event) {
           const isValid = /^[0-9]*$/.test(event.key);
